@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import PhotoImage
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
+from predictor import Predictor
+from utilities.get_file_name import get_file_name
 
 
 class Window:
@@ -17,50 +19,64 @@ class Window:
         self.padx = 10
         self.pady = 5
 
+        self.model = Predictor()
+
         # image file path
         self.path = ""
 
         # root creation
         self.root = tk.Tk()
+        self.root.title("Defect Detect")
         self.root.geometry(f"{self.windx}x{self.windy}+{wsoffset}+{wsoffset}")
         self.root.resizable(False, False)
 
         # main canvas creation
-        self.canvas = tk.Frame(self.root)
+        self.canvas = tk.Frame(self.root, padx=5, pady=5)
         self.canvas.grid(column=0, row=0)
+
+        # image size
+        self.imgx = 500
+        self.imgy = 300
+
+        # btn width
+        self.btn_width = 15
 
         # placeholder image
         raw_image = Image.open("./gui_images/placeholder.png")
-        res_image = raw_image.resize((300, 200))
+        res_image = raw_image.resize((self.imgx, self.imgy))
         self.image = ImageTk.PhotoImage(res_image)
 
         # buttonbar of sorts
-        self.btnframe = tk.Frame(self.canvas, borderwidth=1, relief="ridge", background="grey")
+        self.btnframe = tk.Frame(self.canvas, borderwidth=1, relief="ridge", background="grey", pady=1, padx=1)
 
         lfb = lambda: self.file_browser()  # lambda file browser
 
         # button setup
-        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, padx=self.padx, pady=self.pady, width=10)
-        self.f_browserB = tk.Button(self.btnframe, text="file browser", padx=self.padx, pady=self.pady, command=lfb, width=10)
-        self.checkB = tk.Button(self.btnframe, text="check PCB", padx=self.padx, pady=self.pady, width=10)
+        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, padx=self.padx, pady=self.pady, width=self.btn_width)
+        self.f_browserB = tk.Button(self.btnframe, text="file browser", padx=self.padx, pady=self.pady, command=lfb, width=self.btn_width)
+        self.checkB = tk.Button(self.btnframe, text="check PCB", padx=self.padx, pady=self.pady, width=self.btn_width,
+                                command=lambda: self.set_img(self.path))
 
-        self.img_label = tk.Label(self.canvas, image=self.image, pady=100, padx=100)
+        self.img_label = tk.Label(self.canvas, image=self.image, pady=70, padx=100)
 
         self.checkB.config(state=tk.DISABLED)
 
     def set_img(self, new_img_path):
-        raw_image = Image.open(new_img_path)
-        res_image = raw_image.resize((300, 200))
+        file_name = get_file_name(new_img_path)
+        self.model.predict(new_img_path)
+        result_path = f"./runs/detect/predict/{file_name}.jpg"
+        raw_image = Image.open(result_path)
+        res_image = raw_image.resize((self.imgx, self.imgy))
         self.image = ImageTk.PhotoImage(res_image)
         self.img_label.config(image=self.image)
 
     def file_browser(self):
-        fp = fd.askopenfilename(filetypes=[("txt", "*.txt"), ("png", "*.png"), ("jpeg", "*.jpeg")], title="choose file")
+        fp = fd.askopenfilename(filetypes=[("png", "*.png"), ("jpeg", "*.jpeg")], title="choose file")
         self.checkB.config(state=tk.NORMAL)
         self.path = fp
         if fp != "":
             raw_image = Image.open(fp)
-            res_image = raw_image.resize((300, 200))
+            res_image = raw_image.resize((self.imgx, self.imgy))
             self.image = ImageTk.PhotoImage(res_image)
             self.img_label.config(image=self.image)
 
