@@ -34,7 +34,7 @@ class Window:
 
         # main canvas creation
         self.canvas = tk.Frame(self.root, padx=5, pady=5)
-        self.canvas.grid(column=0, row=0)
+        self.canvas.config(height=self.windy, width=self.windx, pady=1, padx=1, background="white")
 
         # image size
         self.imgx = 500
@@ -43,13 +43,20 @@ class Window:
         # btn width
         self.btn_width = 15
 
+        # image counter for buttons switching them
+        self.img_counter = 0
+
         # placeholder image
         raw_image = Image.open("./gui_images/placeholder.png")
         res_image = raw_image.resize((self.imgx, self.imgy))
         self.image = ImageTk.PhotoImage(res_image)
 
+        self.paths = []
+        self.images = []
+        self.images.append(self.image)
+
         # buttonbar of sorts
-        self.btnframe = tk.Frame(self.canvas, borderwidth=1, relief="ridge", background="grey", pady=1, padx=1)
+        self.btnframe = tk.Frame(self.canvas, pady=1, padx=1)
 
         lfb = lambda: self.file_browser()  # lambda file browser
 
@@ -57,44 +64,78 @@ class Window:
         self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, padx=self.padx, pady=self.pady, width=self.btn_width)
         self.f_browserB = tk.Button(self.btnframe, text="file browser", padx=self.padx, pady=self.pady, command=lfb, width=self.btn_width)
         self.checkB = tk.Button(self.btnframe, text="check PCB", padx=self.padx, pady=self.pady, width=self.btn_width,
-                                command=lambda: self.set_img(self.path))
+                                command=lambda: self.set_img())
+
+        self.leftB = tk.Button(self.canvas, text="<", command=lambda: self.img_dec(), padx=self.padx, pady=self.pady)
+        self.rightB = tk.Button(self.canvas, text=">", command=lambda: self.img_inc(), padx=self.padx, pady=self.pady)
+        self.leftB.config(state=tk.DISABLED)
+        self.rightB.config(state=tk.DISABLED)
 
         self.img_label = tk.Label(self.canvas, image=self.image)
 
         self.checkB.config(state=tk.DISABLED)
 
-    def set_img(self, new_img_path):
-        file_name = get_file_name(new_img_path)
-        self.model.predict(new_img_path)
-        result_path = f"./runs/detect/predict/{file_name}.jpg"
-        raw_image = Image.open(result_path)
-        res_image = raw_image.resize((self.imgx, self.imgy))
-        self.image = ImageTk.PhotoImage(res_image)
-        self.img_label.config(image=self.image)
-        os.remove(result_path)
+    def set_img(self):
+        self.images = []
+        for path in self.paths:
+            file_name = get_file_name(path)
+            self.model.predict(path)
+            result_path = f"./runs/detect/predict/{file_name}.jpg"
+            raw_image = Image.open(result_path)
+            res_image = raw_image.resize((self.imgx, self.imgy))
+            image = ImageTk.PhotoImage(res_image)
+            self.images.append(image)
+            os.remove(result_path)
+        self.img_label.config(image=self.images[self.img_counter])
+        os.rmdir("./runs/detect/predict")
 
     def file_browser(self):
-        fp = fd.askopenfilename(filetypes=[("png", "*.png"), ("jpeg", "*.jpeg")], title="choose file")
+        self.images = []
+        # fps = filepaths
+        fps = fd.askopenfilenames(filetypes=[("png", "*.png"), ("jpeg", "*.jpeg")], title="choose file")
+        # button disabling and enabling
         self.checkB.config(state=tk.NORMAL)
-        self.path = fp
-        if fp != "":
+        if len(fps) > 1:
+            self.leftB.config(state=tk.NORMAL)
+            self.rightB.config(state=tk.NORMAL)
+
+        self.paths = fps
+        for fp in fps:
             raw_image = Image.open(fp)
             res_image = raw_image.resize((self.imgx, self.imgy))
-            self.image = ImageTk.PhotoImage(res_image)
-            self.img_label.config(image=self.image)
+            self.images.append(ImageTk.PhotoImage(res_image))
+
+        self.img_label.config(image=self.images[0])
+
+    def img_inc(self):
+        self.img_counter += 1
+        if self.img_counter >= len(self.images):
+            self.img_counter = 0
+        self.img_label.config(image=self.images[self.img_counter])
+
+    def img_dec(self):
+        self.img_counter -= 1
+        if self.img_counter < 0:
+            self.img_counter = len(self.images) - 1
+        self.img_label.config(image=self.images[self.img_counter])
 
     def draw_win(self):
 
         # 'B' as the last char of an element name signifies it is a button
 
         # gridding
-        self.btnframe.pack()
+        self.btnframe.place(relx=0.5, y=20, anchor=tk.CENTER)
 
         self.img_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        self.canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         self.quitB.grid(column=0, row=0)
         self.f_browserB.grid(column=1, row=0)
         self.checkB.grid(column=2, row=0)
+
+        self.leftB.place(relx=0.05, rely=0.5, anchor=tk.CENTER)
+        self.rightB.place(relx=0.95, rely=0.5, anchor=tk.CENTER)
 
         self.root.mainloop()
 
