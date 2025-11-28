@@ -1,9 +1,11 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from predictor import Predictor
 from utilities.get_file_name import get_file_name
+import os
 
 
 class Window:
@@ -57,7 +59,7 @@ class Window:
         self.checkB = tk.Button(self.btnframe, text="check PCB", padx=self.padx, pady=self.pady, width=self.btn_width,
                                 command=lambda: self.set_img(self.path))
 
-        self.img_label = tk.Label(self.canvas, image=self.image, pady=70, padx=100)
+        self.img_label = tk.Label(self.canvas, image=self.image)
 
         self.checkB.config(state=tk.DISABLED)
 
@@ -69,6 +71,7 @@ class Window:
         res_image = raw_image.resize((self.imgx, self.imgy))
         self.image = ImageTk.PhotoImage(res_image)
         self.img_label.config(image=self.image)
+        os.remove(result_path)
 
     def file_browser(self):
         fp = fd.askopenfilename(filetypes=[("png", "*.png"), ("jpeg", "*.jpeg")], title="choose file")
@@ -87,7 +90,7 @@ class Window:
         # gridding
         self.btnframe.pack()
 
-        self.img_label.pack()
+        self.img_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         self.quitB.grid(column=0, row=0)
         self.f_browserB.grid(column=1, row=0)
