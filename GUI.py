@@ -5,6 +5,7 @@ from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from predictor import Predictor
 from utilities.get_file_name import get_file_name
+from camera import show_on_camera
 import os
 
 
@@ -34,14 +35,14 @@ class Window:
 
         # main canvas creation
         self.canvas = tk.Frame(self.root, padx=5, pady=5)
-        self.canvas.config(height=self.windy, width=self.windx, pady=1, padx=1, background="white")
+        self.canvas.config(height=self.windy, width=self.windx, pady=1, padx=1)
 
         # image size
         self.imgx = 500
         self.imgy = 300
 
         # btn width
-        self.btn_width = 15
+        self.btn_width = 10
 
         # image counter for buttons switching them
         self.img_counter = 0
@@ -61,13 +62,14 @@ class Window:
         lfb = lambda: self.file_browser()  # lambda file browser
 
         # button setup
-        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, padx=self.padx, pady=self.pady, width=self.btn_width)
-        self.f_browserB = tk.Button(self.btnframe, text="file browser", padx=self.padx, pady=self.pady, command=lfb, width=self.btn_width)
-        self.checkB = tk.Button(self.btnframe, text="check PCB", padx=self.padx, pady=self.pady, width=self.btn_width,
+        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, width=self.btn_width)
+        self.f_browserB = tk.Button(self.btnframe, text="file browser", command=lfb, width=self.btn_width)
+        self.checkB = tk.Button(self.btnframe, text="check PCB", width=self.btn_width,
                                 command=lambda: self.set_img())
+        self.cameraB = tk.Button(self.btnframe, text="camera", command=lambda: show_on_camera(), width=self.btn_width)
 
-        self.leftB = tk.Button(self.canvas, text="<", command=lambda: self.img_dec(), padx=self.padx, pady=self.pady)
-        self.rightB = tk.Button(self.canvas, text=">", command=lambda: self.img_inc(), padx=self.padx, pady=self.pady)
+        self.leftB = tk.Button(self.canvas, text="<", command=lambda: self.img_dec())
+        self.rightB = tk.Button(self.canvas, text=">", command=lambda: self.img_inc())
         self.leftB.config(state=tk.DISABLED)
         self.rightB.config(state=tk.DISABLED)
 
@@ -99,6 +101,9 @@ class Window:
             self.leftB.config(state=tk.NORMAL)
             self.rightB.config(state=tk.NORMAL)
 
+        if not fps:
+            self.images.append(self.image)
+
         self.paths = fps
         for fp in fps:
             raw_image = Image.open(fp)
@@ -124,18 +129,19 @@ class Window:
         # 'B' as the last char of an element name signifies it is a button
 
         # gridding
-        self.btnframe.place(relx=0.5, y=20, anchor=tk.CENTER)
+        self.btnframe.place(relx=0.5, rely=0.85, anchor=tk.CENTER)
 
-        self.img_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.img_label.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
 
         self.canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         self.quitB.grid(column=0, row=0)
         self.f_browserB.grid(column=1, row=0)
         self.checkB.grid(column=2, row=0)
+        self.cameraB.grid(column=3, row=0)
 
-        self.leftB.place(relx=0.05, rely=0.5, anchor=tk.CENTER)
-        self.rightB.place(relx=0.95, rely=0.5, anchor=tk.CENTER)
+        self.leftB.place(relx=0.05, rely=0.45, anchor=tk.CENTER)
+        self.rightB.place(relx=0.95, rely=0.45, anchor=tk.CENTER)
 
         self.root.mainloop()
 
