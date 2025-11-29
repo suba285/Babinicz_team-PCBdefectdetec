@@ -3,8 +3,8 @@ from PIL import Image
 
 
 class Predictor:
-    def __init__(self):
-        self.model = YOLO("./my_model/thebest.pt")
+    def __init__(self, model):
+        self.model = YOLO(f"./my_model/{model}")
         self.results = []
 
     def predict(self, path):

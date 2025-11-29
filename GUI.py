@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 from predictor import Predictor
@@ -18,11 +19,32 @@ class Window:
         wsoffset = 150
 
         tile_size = 100
-
         self.padx = 10
         self.pady = 5
 
-        self.model = Predictor()
+        # MODEL SELECTION PRE-WINDOW
+
+        models = ["best.pt", "thebest.pt", "bestofthebest.pt"]
+
+        self.model_name = "bestofthebest.pt"
+
+        self.model_select = tk.Tk()
+        self.model_select.title("model selection")
+        self.model_select.geometry(f"{300}x{180}+{wsoffset}+{wsoffset}")
+
+        # dropdown holder
+        self.dropdown = ttk.Combobox(self.model_select, values=models)
+        self.dropdown.set("bestofthebest.pt")
+
+        self.oke = tk.Button(self.model_select, text="ok", command=lambda: self.load_model_type(), width=10, height=2)
+        self.oke.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
+
+        self.dropdown.place(relx=0.5, rely=0.3, anchor=tk.CENTER)
+
+        self.model_select.mainloop()
+
+        # THE MODEL
+        self.model = Predictor(self.model_name)
 
         # image file path
         self.path = ""
@@ -80,6 +102,11 @@ class Window:
         self.img_label = tk.Label(self.canvas, image=self.image)
 
         self.checkB.config(state=tk.DISABLED)
+
+    def load_model_type(self):
+        self.model_name = self.dropdown.get()
+        print(self.model_name)
+        self.model_select.destroy()
 
     def set_img(self):
         self.images = []
