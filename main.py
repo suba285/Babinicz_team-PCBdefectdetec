@@ -2,7 +2,14 @@
 from GUI import Window
 
 
-main_window = Window()
+def do():
 
-main_window.draw_win()
+    main_window = Window()
+
+    main_window.draw_win()
+
+
+if __name__ == '__main__':
+    do()
+
 
