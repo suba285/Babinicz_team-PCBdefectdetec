@@ -66,14 +66,14 @@ class Window:
         lfb = lambda: self.file_browser()  # lambda file browser
 
         # button setup
-        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, width=self.btn_width)
-        self.f_browserB = tk.Button(self.btnframe, text="file browser", command=lfb, width=self.btn_width)
+        self.quitB = tk.Button(self.btnframe, text="quit", command=self.root.destroy, width=self.btn_width, height=2)
+        self.f_browserB = tk.Button(self.btnframe, text="file browser", command=lfb, width=self.btn_width, height=2)
         self.checkB = tk.Button(self.btnframe, text="check PCB", width=self.btn_width,
-                                command=lambda: self.set_img())
-        self.cameraB = tk.Button(self.btnframe, text="camera", command=lambda: self.cam_proc(), width=self.btn_width)
+                                command=lambda: self.set_img(), height=2)
+        self.cameraB = tk.Button(self.btnframe, text="camera", command=lambda: self.cam_proc(), width=self.btn_width, height=2)
 
-        self.leftB = tk.Button(self.canvas, text="<", command=lambda: self.img_dec())
-        self.rightB = tk.Button(self.canvas, text=">", command=lambda: self.img_inc())
+        self.leftB = tk.Button(self.canvas, text="<", command=lambda: self.img_dec(), height=2)
+        self.rightB = tk.Button(self.canvas, text=">", command=lambda: self.img_inc(), height=2)
         self.leftB.config(state=tk.DISABLED)
         self.rightB.config(state=tk.DISABLED)
 
@@ -107,9 +107,11 @@ class Window:
         if len(fps) > 1:
             self.leftB.config(state=tk.NORMAL)
             self.rightB.config(state=tk.NORMAL)
+            self.checkB.config(text="check PCB's")
         else:
             self.leftB.config(state=tk.DISABLED)
             self.rightB.config(state=tk.DISABLED)
+            self.checkB.config(text="check PCB")
 
         if not fps:
             self.images.append(self.image)
@@ -167,8 +169,8 @@ class Window:
         self.checkB.grid(column=2, row=0)
         self.cameraB.grid(column=3, row=0)
 
-        self.leftB.place(relx=0.05, rely=0.45, anchor=tk.CENTER)
-        self.rightB.place(relx=0.95, rely=0.45, anchor=tk.CENTER)
+        self.leftB.place(relx=0.07, rely=0.45, anchor=tk.CENTER)
+        self.rightB.place(relx=0.93, rely=0.45, anchor=tk.CENTER)
 
         self.root.mainloop()
 
