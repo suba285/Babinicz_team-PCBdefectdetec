@@ -3,7 +3,7 @@ import os
 
 
 def show_on_camera():
-    model = YOLO('./my_model/my_model.pt')
+    model = YOLO('./my_model/thebest.pt')
     results = model(0, show=True)
 
     for result in results:

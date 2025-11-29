@@ -4,7 +4,7 @@ from PIL import Image
 
 class Predictor:
     def __init__(self):
-        self.model = YOLO("./my_model/my_model.pt")
+        self.model = YOLO("./my_model/thebest.pt")
         self.results = []
 
     def predict(self, path):

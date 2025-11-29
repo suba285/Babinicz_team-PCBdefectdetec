@@ -113,6 +113,7 @@ class Window:
 
         if not fps:
             self.images.append(self.image)
+            self.checkB.config(state=tk.DISABLED)
 
         self.paths = fps
         for fp in fps:
